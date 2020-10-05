@@ -1,13 +1,27 @@
 package arrays
 
-// It's New Year's Day and everyone's in line for the Wonderland rollercoaster ride! There are a number of people queued up, and each person wears a sticker indicating their initial position in the queue. Initial positions increment by  from  at the front of the line to  at the back.
-// Any person in the queue can bribe the person directly in front of them to swap positions. If two people swap positions, they still wear the same sticker denoting their original places in line. One person can bribe at most two others. For example, if  and  bribes , the queue will look like this: .
+import (
+	"fmt"
+	"math"
+	"sort"
+)
 
-// Fascinated by this chaotic queue, you decide you must know the minimum number of bribes that took place to get the queue into its current state!
+// It's New Year's Day and everyone's in line for the Wonderland rollercoaster
+// ride! There are a number of people queued up, and each person wears a sticker
+// indicating their initial position in the queue. Initial positions increment
+// by from at the front of the line to at the back. Any person in the queue can
+// bribe the person directly in front of them to swap positions. If two people
+// swap positions, they still wear the same sticker denoting their original
+// places in line. One person can bribe at most two others. For example, if and
+// bribes , the queue will look like this: .
 
-// Function Description
+// Fascinated by this chaotic queue, you decide you must know the minimum number
+// of bribes that took place to get the queue into its current state! Function
+// Description
 
-// Complete the function minimumBribes in the editor below. It must print an integer representing the minimum number of bribes necessary, or Too chaotic if the line configuration is not possible.
+// Complete the function minimumBribes in the editor below. It must print an
+// integer representing the minimum number of bribes necessary, or Too chaotic
+// if the line configuration is not possible.
 
 // minimumBribes has the following parameter(s):
 
@@ -29,7 +43,9 @@ package arrays
 
 // Output Format
 
-// Print an integer denoting the minimum number of bribes needed to get the queue into its final state. Print Too chaotic if the state is invalid, i.e. it requires a person to have bribed more than  people.
+// Print an integer denoting the minimum number of bribes needed to get the
+// queue into its final state. Print Too chaotic if the state is invalid, i.e.
+// it requires a person to have bribed more than people.
 
 // Sample Input
 
@@ -43,13 +59,43 @@ package arrays
 // 3
 // Too chaotic
 type (
-	TooComplicatedError error
+	TooChaoticError struct{}
+	TooBigListError struct{
+		val int
+	}
 )
 
-func (e TooComplicatedError) Error() string {
+func (e TooChaoticError) Error() string {
+	return "Too chaotic"
+}
 
+func (e TooBigListError) Error() string {
+	return fmt.Sprintf("Too many queue members: %d", e.val)
 }
 
 func minimumBribes(queue []int) (int, error) {
-	return 0, nil
+	swaps := 0
+	swapped := make(map[int]int)
+
+	if len(queue) > int(math.Pow(10, 5)) {
+		return 0, TooBigListError{len(queue)}
+	}
+
+	current := queue
+	for !sort.IntsAreSorted(current) {
+		for i, val := range current {
+			if val > current[i+1] {
+				if swapped[val] >= 2 {
+					return 0, TooChaoticError{}
+				} else {
+					current[i], current[i+1] = current[i+1], current[i]
+					swapped[val]++
+					swaps++
+					break
+				}
+			}
+		}
+	}
+
+	return swaps, nil
 }
