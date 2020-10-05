@@ -1,8 +1,5 @@
 package hashtables
 
-import (
-	"hash/fnv"
-)
 
 // Harold is a kidnapper who wrote a ransom note, but now he is worried it will
 // be traced back to him through his handwriting. He found a magazine and wants
@@ -78,23 +75,21 @@ import (
 
 func checkMagazine(magazine []string, note[]string) bool {
 	dict := make(map[string]int)
-	hash := fnv.New128a()
 
 	for _, word := range magazine {
-		dict[string(hash.Sum([]byte(word)))]++
+		dict[word]++
 	}
 
 	for _, word := range note {
-		sum := string(hash.Sum([]byte(word)))
-		if _, ok := dict[sum]; !ok {
+		if _, ok := dict[word]; !ok {
 			return false
 		}
 
-		if dict[sum] == 0 {
+		if dict[word] == 0 {
 			return false
 		}
 
-		dict[sum]--
+		dict[word]--
 	}
 
 	return true
